@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERMANA - Digital Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons untuk Ikon Keranjang Profesional -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            overflow-x: hidden;
+            perspective: 1000px;
+        }
+        .bg-glow {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        @keyframes orbit3d {
+            0% { transform: rotateX(60deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(60deg) rotateY(0deg) rotateZ(360deg); }
+        }
+        .orbit-ring {
+            transform-style: preserve-3d;
+            animation: orbit3d 8s linear infinite;
+        }
+        .card-3d-container {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            width: 100%;
+        }
+        .card-3d {
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+            width: 100%;
+        }
+        .pop-out-text {
+            transform: translateZ(30px);
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen relative pb-28 antialiased">
+
+    <div class="bg-glow"></div>
+
+    <!-- NAVBAR STICKY -->
+    <nav class="sticky top-0 z-40 bg-[#0b0f19]/80 backdrop-blur-md border-b border-slate-800/50 px-6 py-4 max-w-md mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img src="foto-gw.jpg" alt="Profil" class="w-8 h-8 rounded-xl object-cover border border-slate-700 shadow-lg" onerror="this.style.display='none';">
+            <span class="font-bold text-lg tracking-wide bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">PERMANA</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="openCartModal()" class="relative p-2.5 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition text-slate-300 hover:text-cyan-400 cursor-pointer flex items-center justify-center">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-cyan-500 text-slate-950 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-[#0b0f19] shadow-sm hidden">0</span>
+            </button>
+            <button id="langBtn" onclick="toggleLanguage()" class="bg-slate-900 border border-slate-800 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-slate-800 transition cursor-pointer text-cyan-400">
+                EN
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-md mx-auto px-5 pt-8 relative z-10 space-y-10">
+        
+        <!-- HERO & PROFILE SECTION -->
+        <div class="flex flex-col items-center text-center space-y-4 animate-fade-in relative">
+            <div class="relative w-32 h-32 flex items-center justify-center">
+                <div class="absolute w-32 h-32 border-2 border-dashed border-cyan-500/40 rounded-full orbit-ring pointer-events-none"></div>
+                <div class="absolute w-28 h-28 border border-purple-500/30 rounded-full orbit-ring pointer-events-none" style="animation-duration: 5s; animation-direction: reverse;"></div>
+                <div class="relative w-24 h-24 rounded-full overflow-hidden border-2 border-slate-800 shadow-xl z-10">
+                    <img src="foto-gw.jpg" alt="Permana" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                </div>
+            </div>
+            
+            <div class="space-y-1.5 z-10">
+                <h1 class="text-2xl font-black tracking-tight text-white uppercase bg-gradient-to-r from-white via-cyan-200 to-slate-400 bg-clip-text text-transparent">PERMANA</h1>
+                <p class="text-xs text-cyan-400 font-semibold tracking-wider uppercase tracking-widest">Digital Business & Content Creator</p>
+                <p id="heroDesc" class="text-xs text-slate-400 max-w-xs mx-auto pt-1 leading-relaxed">
+                    Membantu mengoptimalkan produktivitas dan kreativitas kamu lewat produk digital serta AI prompt toolkit berkualitas tinggi.
+                </p>
+            </div>
+        </div>
+
+        <hr class="border-slate-800/60">
+
+        <!-- KATALOG PRODUK -->
+        <div class="space-y-6 animate-fade-in" style="animation-delay: 0.2s;">
+            <div class="flex items-center justify-between">
+                <h2 id="sectionTitle" class="text-lg font-bold text-white tracking-tight">Katalog Produk Pilihan</h2>
+                <span id="sectionBadge" class="text-[10px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded-full font-medium">Produk Aktif</span>
+            </div>
+
+            <div id="productGrid" class="space-y-6">
+                <!-- Produk 1 -->
+                <div class="card-3d-container product-card" data-id="p1">
+                    <div id="tiltCard" class="card-3d bg-[#131926] border border-slate-800/80 rounded-2xl overflow-hidden shadow-lg shadow-black/50 group">
+                        <div class="w-full bg-[#0b0f19] flex items-center justify-center overflow-hidden p-2 border-b border-slate-800/50">
+                            <img src="produk-generator.jpg" alt="Ultimate Prompt Generator" class="w-full h-auto max-h-64 object-contain rounded-xl">
+                        </div>
+                        
+                        <div class="p-5 space-y-4 pop-out-text">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-bold text-white text-base group-hover:text-cyan-400 transition-colors name-tag">Ultimate Prompt Generator</h3>
+                                    <span id="stockBadge" class="bg-rose-500/10 text-rose-400 text-[9px] font-bold px-2 py-0.5 rounded border border-rose-500/20 animate-pulse stock-tag">Sisa 2 Slot</span>
+                                </div>
+                                <p id="productDesc" class="text-slate-400 text-xs mt-1.5 leading-relaxed desc-tag">Tools cerdas untuk menyusun formula prompt yang presisi, konsisten, dan terstruktur guna menghasilkan karya AI bernilai tinggi.</p>
+                            </div>
+                            
+                            <div class="flex items-center justify-between pt-1">
+                                <div class="flex flex-col">
+                                    <span id="priceLabel" class="text-[9px] text-slate-500 uppercase font-bold tracking-wider price-label-tag">Harga Promo</span>
+                                    <span class="text-base font-extrabold text-white price-tag" data-value="85000">Rp85.000</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="addToCart('p1')" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:text-cyan-400 text-slate-300 text-xs p-3 rounded-xl transition cursor-pointer flex items-center justify-center">
+                                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                                    </button>
+                                    <button id="buyBtn" onclick="openModal('p1')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md shadow-cyan-500/20 cursor-pointer">Lihat Detail</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="text-center pt-4 opacity-60">
+            <p class="text-[10px] text-slate-600 tracking-wider font-medium">&copy; 2026 PERMANA. All Rights Reserved.</p>
+        </footer>
+    </main>
+
+    <!-- FLOATING BAR CHECKOUT PREMIUM -->
+    <div id="floatingCheckoutBar" class="fixed bottom-0 left-0 right-0 z-30 bg-[#131926]/95 backdrop-blur-md border-t border-slate-800/80 max-w-md mx-auto px-6 py-4 flex items-center justify-between transform translate-y-full transition-transform duration-300 shadow-xl rounded-t-2xl hidden">
+        <div class="flex items-center gap-2.5">
+            <input type="checkbox" id="selectAllFloating" onclick="toggleSelectAllFloating(this)" class="w-4 h-4 rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-0 cursor-pointer accent-cyan-500">
+            <span id="floatSelectLabel" class="text-xs text-slate-400 font-medium">Semua</span>
+        </div>
+        <div class="flex items-center gap-5">
+            <div class="text-right flex flex-col justify-center">
+                <span id="floatTotalLabel" class="text-[9px] text-slate-500 block uppercase font-bold tracking-wider leading-none mb-1">Total</span>
+                <span id="floatingTotalPrice" class="text-base font-black text-cyan-400 leading-none">Rp0</span>
+            </div>
+            <button onclick="checkoutSelected()" id="floatCheckoutBtn" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-6 py-3 rounded-xl transition shadow-lg shadow-cyan-500/20 cursor-pointer">
+                Checkout (0)
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL PRODUK -->
+    <div id="qrisModal" class="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-[#131926] border-t border-x border-slate-800 w-full max-w-md rounded-t-3xl p-6 space-y-4 transform translate-y-full transition-transform duration-300 ease-out flex flex-col items-center max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-start w-full text-left">
+                <div>
+                    <h3 id="modalTitle" class="text-xl font-bold text-white">Detail Produk</h3>
+                    <p id="modalProductName" class="text-cyan-400 text-xs font-semibold mt-0.5">Produk: -</p>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer">&times;</button>
+            </div>
+
+            <div id="descriptionView" class="w-full space-y-4 text-left">
+                <div class="bg-[#0b0f19] border border-slate-800/80 p-4 rounded-xl text-xs text-slate-300 leading-relaxed max-h-[40vh] overflow-y-auto shadow-inner">
+                    <p id="fullProductDesc"></p> 
+                </div>
+                <div class="bg-[#0b0f19] border border-slate-800 rounded-xl py-2 px-6 w-full flex justify-between items-center">
+                    <div>
+                        <span id="modalPriceLabel" class="text-[9px] text-slate-500 uppercase tracking-wider block">Total Harga</span>
+                        <span id="modalProductPriceView" class="text-xl font-black text-white">Rp0</span>
+                    </div>
+                </div>
+                <button onclick="directCheckout()" id="proceedBtn" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm py-3.5 rounded-xl transition shadow-lg cursor-pointer">
+                    Beli Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KERANJANG BELANJA -->
+    <div id="cartModal" class="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-[#131926] border-t border-x border-slate-800 w-full max-w-md rounded-t-3xl p-6 space-y-4 transform translate-y-full transition-transform duration-300 ease-out flex flex-col items-center max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-start w-full text-left border-b border-slate-800/60 pb-3">
+                <div>
+                    <h3 id="cartTitle" class="text-xl font-bold text-white">Keranjang Belanja</h3>
+                    <p id="cartCountLabel" class="text-slate-400 text-xs mt-0.5">0 produk terpilih</p>
+                </div>
+                <button onclick="closeCartModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer">&times;</button>
+            </div>
+
+            <div id="cartItemsList" class="w-full space-y-3 max-h-[50vh] overflow-y-auto py-1"></div>
+
+            <div class="w-full border-t border-slate-800/60 pt-4 space-y-4">
+                <div class="flex justify-between items-center bg-[#0b0f19] px-5 py-3 rounded-xl border border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="selectAllCart" onclick="toggleSelectAllCart(this)" class="w-4 h-4 rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-0 cursor-pointer accent-cyan-500">
+                        <span id="cartSelectAllLabel" class="text-xs text-slate-300 font-medium">Pilih Semua</span>
+                    </div>
+                    <div class="text-right">
+                        <span id="cartTotalLabel" class="text-[9px] text-slate-500 uppercase block font-bold tracking-wider">Total Pembayaran</span>
+                        <span id="cartTotalPrice" class="text-lg font-black text-cyan-400">Rp0</span>
+                    </div>
+                </div>
+                <button onclick="checkoutSelected()" id="cartCheckoutBtn" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+                    Beli Sekarang (0)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PEMBAYARAN QRIS -->
+    <div id="paymentModal" class="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-[#131926] border-t border-x border-slate-800 w-full max-w-md rounded-t-3xl p-6 space-y-4 transform translate-y-full transition-transform duration-300 ease-out flex flex-col items-center max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-start w-full text-left">
+                <div>
+                    <h3 id="payModalTitle" class="text-xl font-bold text-white">Scan untuk Bayar</h3>
+                    <p id="payModalItems" class="text-cyan-400 text-xs font-semibold mt-0.5 max-w-[280px] truncate"></p>
+                </div>
+                <button onclick="closePaymentModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer">&times;</button>
+            </div>
+
+            <div class="bg-[#0b0f19] border border-slate-800 rounded-xl py-2 px-6 w-full">
+                <span id="payModalBillLabel" class="text-[10px] text-slate-500 uppercase tracking-wider block">Total Tagihan</span>
+                <span id="payModalPrice" class="text-2xl font-black text-white">Rp0</span>
+            </div>
+
+            <div class="w-full flex flex-col items-center gap-2">
+                <div class="bg-white p-3 rounded-2xl border border-slate-700 w-52 h-52 flex items-center justify-center overflow-hidden">
+                    <img src="qris.jpg" alt="QRIS Code" class="w-full h-full object-contain">
+                </div>
+                <a href="qris.jpg" download="QRIS-PERMANA.jpg" id="downloadBtn" class="bg-slate-900 border border-slate-800 text-slate-300 text-[11px] font-bold px-4 py-2 rounded-xl transition hover:bg-slate-800 flex items-center gap-1.5 shadow-sm">
+                    📥 Unduh Kode QRIS
+                </a>
+            </div>
+
+            <div id="payModalInstructions" class="text-[11px] text-slate-400 space-y-1 bg-[#0b0f19] border border-slate-800/80 p-3.5 rounded-xl w-full text-left leading-relaxed"></div>
+
+            <a id="waBtn" href="#" target="_blank" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2">
+                💬 Kirim Bukti Bayar (WhatsApp)
+            </a>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const productsDB = {
+            p1: {
+                id: "p1",
+                nameId: "Ultimate Prompt Generator",
+                nameEn: "Ultimate Prompt Generator",
+                price: 85000,
+                img: "produk-generator.jpg",
+                descShortId: "Tools cerdas untuk menyusun formula prompt yang presisi, konsisten, dan terstruktur guna menghasilkan karya AI bernilai tinggi.",
+                descShortEn: "Smart tools to craft precise, consistent, and structured prompt formulas to generate high-value AI masterworks.",
+                descId: `
+                    <div class="text-center font-bold text-cyan-400 text-sm mb-2">🔥 Ubah Foto Biasa Jadi Prompt AI Super Detail & Sinematik Dalam Sekali Klik</div>
+                    Prompt Generator adalah alat Andalan untuk mengubah gambar acak atau ide sederhana menjadi prompt AI yang rapi, realistis, dan siap menghasilkan visual berkualitas tinggi. Cocok untuk yang menginginkan hasil AI lebih niat, estetika, dan gak keliatan “AI banget”.[cite: 1]<br><br>
+                    
+                    <b>⚡ Yang Dilakukan Tools Ini:</b><br>
+                    AI akan membedah setiap detail visual dari gambar yang kamu upload — mulai dari outfit, pencahayaan, warna, angle kamera, background, mood, sampai detail kecil yang sering kelewat. Semuanya langsung dirangkai menjadi generator AI prompt profesional yang mudah dipahami.[cite: 1]<br><br>
+                    
+                    <b>🧠 Cara Kerjanya:</b><br>
+                    Unggah Foto ➔ AI Analisis Detail ➔ Sistem Menyusun Prompt Otomatis ➔ Tinggal Copy & Pakai (Tanpa ribet mikirin struktur prompt manual).[cite: 1]<br><br>
+                    
+                    <b>🎯 Kenapa Banyak Orang Pakai?</b><br>
+                    • Hasil gambar AI jadi jauh lebih realistis & akurat<br>
+                    • Cepat lebih detail, rapih, dan profesional<br>
+                    • Hemat waktu bikin prompt dari nol<br>
+                    • Cocok untuk berbagai gaya: sinematik, realistis, fotografi jalanan, anime, fashion, dll<br>
+                    • Membantu hasil AI lebih konsisten dan estetis[cite: 1]<br><br>
+                    
+                    <b>🚀 Cocok Untuk:</b><br>
+                    • Pembuat Konten & Desainer<br>
+                    • Seniman AI & Pengembang<br>
+                    • Pekerja lepas & Penjual produk digital<br>
+                    • Siapa aja yang pengen bikin visual AI lebih pro[cite: 1]<br><br>
+                    
+                    💡 <i>Bahkan foto biasa dari galeri bisa diubah menjadi prompt level premium yang siap dipakai di berbagai generator AI.</i>[cite: 1]<br><br>
+                    <span class="text-cyan-400 font-semibold">📦 Tinggal Upload Foto — Sistem yang Kerja.</span>[cite: 1]
+                `,
+                descEn: `
+                    <div class="text-center font-bold text-cyan-400 text-sm mb-2">🔥 Transform Ordinary Photos Into Ultra-Detailed & Cinematic AI Prompts in One Click</div>
+                    Prompt Generator is your go-to tool to transform random images or simple ideas into clean, realistic, and production-ready AI prompts. Perfect for anyone wanting deliberate, aesthetic, and completely organic non-synthetic AI results.[cite: 1]<br><br>
+                    
+                    <b>⚡ What This Tool Does:</b><br>
+                    The AI breaks down every visual aspect of your uploaded image—from outfits, lighting, color grading, camera angles, backgrounds, moods, down to the tiniest details. Everything is instantly woven into a professional, easy-to-understand AI prompt formula.[cite: 1]<br><br>
+                    
+                    <b>🧠 How It Works:</b><br>
+                    Upload Photo ➔ AI Analyzes Details ➔ Automated System Structure ➔ Just Copy & Paste (No manual prompt layout mapping required).[cite: 1]<br><br>
+                    
+                    <b>🎯 Why People Love It:</b><br>
+                    • AI images become significantly more realistic & accurate<br>
+                    • Fast, comprehensive, neat, and highly professional prompt delivery<br>
+                    • Saves tons of time making prompts from scratch<br>
+                    • Fits multiple styles: cinematic, realistic, street photo, anime, fashion, etc.<br>
+                    • Promotes consistent, artistic output layouts[cite: 1]<br><br>
+                    
+                    <b>🚀 Best For:</b><br>
+                    • Content Creators & Designers<br>
+                    • AI Artists & System Developers<br>
+                    • Freelancers & Digital Product Merchants<br>
+                    • Anyone wanting to scale up their visual AI game instantly[cite: 1]<br><br>
+                    
+                    💡 <i>Even a casual gallery snapshot can be turned into a premium-tier prompt ready for any AI generator engine.</i>[cite: 1]<br><br>
+                    <span class="text-cyan-400 font-semibold">📦 Just Upload Your Image — The System Does the Work.</span>[cite: 1]
+                `
+            }
+        };
+
+        let cart = []; 
+        let currentLang = 'id';
+        let activeDetailProductId = 'p1';
+
+        const dictionary = {
+            id: {
+                btn: "EN",
+                heroDesc: "Membantu mengoptimalkan produktivitas dan kreativitas kamu lewat produk digital serta AI prompt toolkit berkualitas tinggi.",
+                sectionTitle: "Katalog Produk Pilihan",
+                sectionBadge: "Produk Aktif",
+                stockBadge: "Sisa 2 Slot",
+                priceLabel: "Harga Promo",
+                buyBtn: "Lihat Detail",
+                modalTitleDetail: "Detail Produk",
+                modalTitlePay: "Scan untuk Bayar",
+                modalPriceLabel: "Total Harga",
+                modalBillLabel: "Total Tagihan",
+                proceedBtn: "Beli Sekarang",
+                downloadBtn: "📥 Unduh Kode QRIS",
+                waBtn: "💬 Kirim Bukti Bayar (WhatsApp)",
+                waText: "Bang, saya sudah beli produk: ",
+                waEnd: " nya via QRIS. Tolong segera diproses ya!",
+                cartTitle: "Keranjang Belanja",
+                cartSelectAll: "Pilih Semua",
+                cartCheckout: "Beli Sekarang",
+                cartEmpty: "Keranjang belanja kamu masih kosong.",
+                cartSelectedCount: " produk terpilih",
+                cartDeleteBtn: "Hapus",
+                floatSelect: "Semua",
+                floatTotal: "Total",
+                instructions: `
+                    <p class="font-semibold text-slate-300">📌 Langkah Mudah:</p>
+                    <p>1. Klik tombol <b>Unduh Kode QRIS</b> di atas atau simpan gambarnya.</p>
+                    <p>2. Buka m-Banking atau E-Wallet pilihanmu lalu Scan dari Galeri.</p>
+                    <p>3. Setelah sukses transfer, klik tombol konfirmasi bukti bayar di bawah.</p>
+                `
+            },
+            en: {
+                btn: "ID",
+                heroDesc: "Helping you optimize your productivity and creativity through high-quality digital products and AI prompt toolkits.",
+                sectionTitle: "Featured Product Catalog",
+                sectionBadge: "Active Product",
+                stockBadge: "2 Slots Left",
+                priceLabel: "Promo Price",
+                buyBtn: "View Details",
+                modalTitleDetail: "Product Details",
+                modalTitlePay: "Scan to Pay",
+                modalPriceLabel: "Total Price",
+                modalBillLabel: "Total Bill",
+                proceedBtn: "Buy Now",
+                downloadBtn: "📥 Download QRIS Code",
+                waBtn: "💬 Send Payment Proof (WhatsApp)",
+                waText: "Bang, I have purchased products: ",
+                waEnd: " via QRIS. Please process it immediately!",
+                cartTitle: "Shopping Cart",
+                cartSelectAll: "Select All",
+                cartCheckout: "Checkout",
+                cartEmpty: "Your shopping cart is empty.",
+                cartSelectedCount: " products selected",
+                cartDeleteBtn: "Delete",
+                floatSelect: "All",
+                floatTotal: "Total",
+                instructions: `
+                    <p class="font-semibold text-slate-300">📌 Easy Steps:</p>
+                    <p>1. Click the <b>Download QRIS Code</b> button above or save the image.</p>
+                    <p>2. Open your preferred Bank or E-Wallet app, then Scan from Gallery.</p>
+                    <p>3. After successful transfer, click the confirmation button below.</p>
+                `
+            }
+        };
+
+        function addToCart(prodId) {
+            const exists = cart.find(item => item.id === prodId);
+            if (!exists) {
+                cart.push({ id: prodId, checked: true });
+            }
+            updateCartUI();
+            showFloatingBar();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cartBadge');
+            const langData = dictionary[currentLang];
+
+            if(cart.length > 0) {
+                badge.textContent = cart.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+            
+            const container = document.getElementById('cartItemsList');
+            if(cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">${langData.cartEmpty}</div>`;
+            } else {
+                container.innerHTML = cart.map(item => {
+                    const prod = productsDB[item.id];
+                    const prodName = (currentLang === 'id') ? prod.nameId : prod.nameEn;
+                    return `
+                        <div class="flex items-center justify-between bg-[#0b0f19] p-3 rounded-xl border border-slate-800/80 gap-3">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleItemCheck('${item.id}', this.checked)" class="w-4 h-4 rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-0 cursor-pointer accent-cyan-500">
+                                <img src="${prod.img}" class="w-12 h-12 object-cover rounded-lg border border-slate-800">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white max-w-[160px] truncate">${prodName}</h4>
+                                    <span class="text-xs font-extrabold text-cyan-400 mt-0.5 block">Rp${prod.price.toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                            <button onclick="removeFromCart('${item.id}')" class="text-rose-500/70 hover:text-rose-400 text-xs p-2 transition cursor-pointer">${langData.cartDeleteBtn}</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+            calculateCartTotal();
+            lucide.createIcons();
+        }
+
+        function toggleItemCheck(id, isChecked) {
+            const item = cart.find(i => i.id === id);
+            if(item) item.checked = isChecked;
+            calculateCartTotal();
+            checkAllStates();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+            if(cart.length === 0) hideFloatingBar();
+        }
+
+        function calculateCartTotal() {
+            let total = 0;
+            let checkedCount = 0;
+            const langData = dictionary[currentLang];
+            
+            cart.forEach(item => {
+                if(item.checked) {
+                    total += productsDB[item.id].price;
+                    checkedCount++;
+                }
+            });
+
+            document.getElementById('cartTotalPrice').textContent = "Rp" + total.toLocaleString('id-ID');
+            document.getElementById('cartCheckoutBtn').textContent = `${langData.cartCheckout} (${checkedCount})`;
+            document.getElementById('cartCountLabel').textContent = `${checkedCount}${langData.cartSelectedCount}`;
+            document.getElementById('floatingTotalPrice').textContent = "Rp" + total.toLocaleString('id-ID');
+            document.getElementById('floatCheckoutBtn').textContent = `${langData.cartCheckout.replace(" Beli Sekarang", "Checkout")} (${checkedCount})`;
+        }
+
+        function checkAllStates() {
+            const allChecked = cart.length > 0 && cart.every(item => item.checked);
+            document.getElementById('selectAllCart').checked = allChecked;
+            document.getElementById('selectAllFloating').checked = allChecked;
+        }
+
+        function toggleSelectAllCart(master) {
+            cart.forEach(item => item.checked = master.checked);
+            updateCartUI();
+            document.getElementById('selectAllFloating').checked = master.checked;
+        }
+
+        function toggleSelectAllFloating(master) {
+            cart.forEach(item => item.checked = master.checked);
+            updateCartUI();
+            document.getElementById('selectAllCart').checked = master.checked;
+        }
+
+        function showFloatingBar() {
+            if (cart.length > 0) {
+                const bar = document.getElementById('floatingCheckoutBar');
+                bar.classList.remove('hidden');
+                setTimeout(() => { bar.classList.remove('translate-y-full'); }, 10);
+            }
+        }
+        function hideFloatingBar() {
+            const bar = document.getElementById('floatingCheckoutBar');
+            bar.classList.add('translate-y-full');
+            setTimeout(() => { bar.classList.add('hidden'); }, 300);
+        }
+
+        function checkoutSelected() {
+            const checkedItems = cart.filter(item => item.checked);
+            if(checkedItems.length === 0) return alert(currentLang === 'id' ? "Pilih minimal 1 produk!" : "Select at least 1 product!");
+            
+            let totalPrice = 0;
+            let productNames = [];
+            
+            checkedItems.forEach(item => {
+                totalPrice += productsDB[item.id].price;
+                productNames.push((currentLang === 'id') ? productsDB[item.id].nameId : productsDB[item.id].nameEn);
+            });
+
+            closeCartModal();
+            hideFloatingBar();
+
+            document.getElementById('payModalTitle').textContent = dictionary[currentLang].modalTitlePay;
+            document.getElementById('payModalPrice').textContent = "Rp" + totalPrice.toLocaleString('id-ID');
+            document.getElementById('payModalItems').textContent = productNames.join(', ');
+            document.getElementById('payModalInstructions').innerHTML = dictionary[currentLang].instructions;
+            
+            const msg = dictionary[currentLang].waText + productNames.join(' & ') + dictionary[currentLang].waEnd;
+            document.getElementById('waBtn').href = "https://wa.me/6285710751443?text=" + encodeURIComponent(msg);
+
+            pModal.classList.remove('opacity-0', 'pointer-events-none');
+            pModal.querySelector('div').classList.remove('translate-y-full');
+        }
+
+        function directCheckout() {
+            closeModal();
+            const prod = productsDB[activeDetailProductId];
+            const prodName = (currentLang === 'id') ? prod.nameId : prod.nameEn;
+            
+            document.getElementById('payModalTitle').textContent = dictionary[currentLang].modalTitlePay;
+            document.getElementById('payModalPrice').textContent = "Rp" + prod.price.toLocaleString('id-ID');
+            document.getElementById('payModalItems').textContent = prodName;
+            document.getElementById('payModalInstructions').innerHTML = dictionary[currentLang].instructions;
+            
+            const msg = dictionary[currentLang].waText + prodName + dictionary[currentLang].waEnd;
+            document.getElementById('waBtn').href = "https://wa.me/6285710751443?text=" + encodeURIComponent(msg);
+
+            pModal.classList.remove('opacity-0', 'pointer-events-none');
+            pModal.querySelector('div').classList.remove('translate-y-full');
+        }
+
+        const modal = document.getElementById('qrisModal');
+        function openModal(id) {
+            activeDetailProductId = id;
+            const prod = productsDB[id];
+            const prodName = (currentLang === 'id') ? prod.nameId : prod.nameEn;
+            
+            document.getElementById('modalTitle').textContent = dictionary[currentLang].modalTitleDetail;
+            document.getElementById('modalProductName').textContent = (currentLang === 'id' ? "Produk: " : "Product: ") + prodName;
+            document.getElementById('fullProductDesc').innerHTML = (currentLang === 'id' ? prod.descId : prod.descEn);
+            document.getElementById('modalProductPriceView').textContent = "Rp" + prod.price.toLocaleString('id-ID');
+            
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => { modal.querySelector('div').classList.remove('translate-y-full'); }, 10);
+        }
+        function closeModal() {
+            modal.querySelector('div').classList.add('translate-y-full');
+            setTimeout(() => { modal.classList.add('opacity-0', 'pointer-events-none'); }, 300);
+        }
+
+        const cModal = document.getElementById('cartModal');
+        function openCartModal() {
+            updateCartUI();
+            cModal.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => { cModal.querySelector('div').classList.remove('translate-y-full'); }, 10);
+        }
+        function closeCartModal() {
+            cModal.querySelector('div').classList.add('translate-y-full');
+            setTimeout(() => { cModal.classList.add('opacity-0', 'pointer-events-none'); }, 300);
+        }
+
+        const pModal = document.getElementById('paymentModal');
+        function closePaymentModal() {
+            pModal.querySelector('div').classList.add('translate-y-full');
+            setTimeout(() => { pModal.classList.add('opacity-0', 'pointer-events-none'); }, 300);
+            if(cart.length > 0) showFloatingBar();
+        }
+
+        // --- GLOBAL TRANSLATION ENGINE ---
+        function toggleLanguage() {
+            currentLang = (currentLang === 'id') ? 'en' : 'id';
+            const langData = dictionary[currentLang];
+
+            document.getElementById('langBtn').textContent = langData.btn;
+            document.getElementById('heroDesc').textContent = langData.heroDesc;
+            document.getElementById('sectionTitle').textContent = langData.sectionTitle;
+            document.getElementById('sectionBadge').textContent = langData.sectionBadge;
+            
+            // Update teks komponen utama katalog kartu produk
+            const cardEl = document.getElementById('productGrid').querySelector('.product-card');
+            const prodData = productsDB[cardEl.getAttribute('data-id')];
+            cardEl.querySelector('.name-tag').textContent = (currentLang === 'id') ? prodData.nameId : prodData.nameEn;
+            cardEl.querySelector('.desc-tag').textContent = (currentLang === 'id') ? prodData.descShortId : prodData.descShortEn;
+            cardEl.querySelector('.stock-tag').textContent = langData.stockBadge;
+            cardEl.querySelector('.price-label-tag').textContent = langData.priceLabel;
+            cardEl.querySelector('button[onclick^="openModal"]').textContent = langData.buyBtn;
+            
+            // Update teks modal detail & checkout statis
+            document.getElementById('modalPriceLabel').textContent = langData.modalPriceLabel;
+            document.getElementById('proceedBtn').textContent = langData.proceedBtn;
+            document.getElementById('payModalBillLabel').textContent = langData.modalBillLabel;
+            document.getElementById('downloadBtn').innerHTML = langData.downloadBtn;
+            document.getElementById('waBtn').innerHTML = langData.waBtn;
+            
+            // Update teks modal keranjang belanja
+            document.getElementById('cartTitle').textContent = langData.cartTitle;
+            document.getElementById('cartSelectAllLabel').textContent = langData.cartSelectAll;
+            document.getElementById('floatSelectLabel').textContent = langData.floatSelect;
+            document.getElementById('floatTotalLabel').textContent = langData.floatTotal;
+            document.getElementById('cartTotalLabel').textContent = langData.modalBillLabel.replace("Tagihan", "Pembayaran");
+
+            updateCartUI(); 
+        }
+
+        lucide.createIcons();
+
+        // --- 3D TILT EFFECT ---
+        const card = document.getElementById('tiltCard');
+        card.addEventListener('touchmove', (e) => processTilt(e.touches[0].clientX, e.touches[0].clientY));
+        card.addEventListener('touchend', resetTilt);
+        card.addEventListener('mousemove', (e) => processTilt(e.clientX, e.clientY));
+        card.addEventListener('mouseleave', resetTilt);
+
+        function processTilt(x, y) {
+            const rect = card.getBoundingClientRect();
+            const cardX = x - rect.left;
+            const cardY = y - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const tiltX = ((centerY - cardY) / centerY) * 12;
+            const tiltY = ((cardX - centerX) / centerX) * 12;
+            card.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.01)`;
+            card.style.boxShadow = `${-tiltY * 1.5}px ${tiltX * 1.5}px 25px rgba(14, 165, 233, 0.15)`;
+        }
+        function resetTilt() {
+            card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+            card.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.5)';
+        }
+
+        document.getElementById('modalInstructions').innerHTML = dictionary['id'].instructions;
+    </script>
+</body>
+</html>
